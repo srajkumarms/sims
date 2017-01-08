@@ -3,7 +3,73 @@
   <groupId>com.home.app</groupId>
   <artifactId>sims-app</artifactId>
   <version>1</version>
+
+  <properties>
+      <gruntTask>build:minified</gruntTask>
+  </properties>
+
+  <profiles>
+      <profile>
+          <id>dev</id>
+          <activation>
+              <activeByDefault>true</activeByDefault>
+          </activation>
+          <properties>
+              <gruntTask>build</gruntTask>
+          </properties>
+      </profile>
+      <profile>
+          <id>qc</id>
+          <properties>
+              <gruntTask>build:minified</gruntTask>
+          </properties>
+      </profile>
+  </profiles>
+
   <build>
-      <directory>${project.basedir}/target</directory>
+      <plugins>
+          <plugin>
+              <artifactId>maven-clean-plugin</artifactId>
+              <version>3.0.0</version>
+              <executions>
+                  <execution>
+                      <id>remove-target</id>
+                      <phase>prepare-package</phase>
+                      <goals>
+                          <goal>clean</goal>
+                      </goals>
+                      <configuration>
+                          <filesets>
+                              <fileset>
+                                  <directory>target</directory>
+                              </fileset>
+                          </filesets>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+          <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>exec-maven-plugin</artifactId>
+              <version>1.5.0</version>
+              <executions>
+                  <execution>
+                      <id>build-sources</id>
+                      <phase>prepare-package</phase>
+                      <goals>
+                          <goal>exec</goal>
+                      </goals>
+                      <configuration>
+                          <executable>npm.cmd</executable>
+                          <arguments>
+                              <argument>run-script</argument>
+                              <argument>grunt</argument>
+                              <argument>${gruntTask}</argument>
+                          </arguments>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
   </build>
 </project>
