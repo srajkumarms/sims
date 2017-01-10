@@ -1,5 +1,4 @@
 var app = angular.module("app", [])
 app.controller("generalController", function($scope) {
-    $scope.s
-    
+    $scope.title = "General Test Controller";
 });
