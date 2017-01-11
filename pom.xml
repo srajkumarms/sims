@@ -1,34 +1,36 @@
 <project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.home.app</groupId>
-  <artifactId>sims-app</artifactId>
-  <version>1</version>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.home.app</groupId>
+    <artifactId>sims-app</artifactId>
+    <version>1</version>
 
-  <properties>
-      <gruntTask>build:minified</gruntTask>
-  </properties>
+    <properties>
+        <target-local>target-grunt</target-local>
+        <target-deploy>deploy</target-deploy>
+        <gruntTask>build:minified</gruntTask>
+    </properties>
 
-  <profiles>
-      <profile>
-          <id>dev</id>
-          <activation>
-              <activeByDefault>true</activeByDefault>
-          </activation>
-          <properties>
-              <gruntTask>build</gruntTask>
-          </properties>
-      </profile>
-      <profile>
-          <id>qc</id>
-          <properties>
-              <gruntTask>build:minified</gruntTask>
-          </properties>
-      </profile>
-  </profiles>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gruntTask>build</gruntTask>
+            </properties>
+        </profile>
+        <profile>
+            <id>qc</id>
+            <properties>
+                <gruntTask>build:minified</gruntTask>
+            </properties>
+        </profile>
+    </profiles>
 
-  <build>
-      <plugins>
-          <plugin>
+    <build>
+        <plugins>
+            <!-- <plugin>
               <artifactId>maven-clean-plugin</artifactId>
               <version>3.0.0</version>
               <executions>
@@ -47,29 +49,70 @@
                       </configuration>
                   </execution>
               </executions>
-          </plugin>
-          <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>exec-maven-plugin</artifactId>
-              <version>1.5.0</version>
-              <executions>
-                  <execution>
-                      <id>build-sources</id>
-                      <phase>prepare-package</phase>
-                      <goals>
-                          <goal>exec</goal>
-                      </goals>
-                      <configuration>
-                          <executable>npm.cmd</executable>
-                          <arguments>
-                              <argument>run-script</argument>
-                              <argument>grunt</argument>
-                              <argument>${gruntTask}</argument>
-                          </arguments>
-                      </configuration>
-                  </execution>
-              </executions>
-          </plugin>
-      </plugins>
-  </build>
+          </plugin> -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${target-local}"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${target-local}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>build-sources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm.cmd</executable>
+                            <arguments>
+                                <argument>run-script</argument>
+                                <argument>grunt</argument>
+                                <argument>${gruntTask}</argument>
+                            </arguments>
+                            <workingDirectory>${target-local}</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
